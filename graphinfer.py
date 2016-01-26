@@ -32,6 +32,7 @@ import networkx as nx
 import json
 import numpy as np
 import sys
+import importlib
 
 
 def main(args):
@@ -88,7 +89,8 @@ def main(args):
         #Import all the algorithm modules
         for alg in args.alg_name:
             try:
-                algsM[alg]=importlib.import_module("Clean_Algorithms."+alg)           
+                tmpstr='Clean_Algorithms.HC_p.py'
+                algsM[alg]=importlib.import_module('HC_p')           
             except:
                 print "Could not import a module for Algorithm: ", alg
         
@@ -198,26 +200,29 @@ def main(args):
             #Save to json, and to multi-trial data structure.
             for alg in algsM.keys():
 
-                #Output the monitor counts.
+                #Save all the counts
                 algs_mon[alg].append(mon[alg])
-                mon_per=[float(x)/original_num_nodes*100 for x in mon[alg]]
-                outfile=open(args.out_path+alg+'_mon_per_'+grph+'_Trial'+str(trial),'w')
-                json.dump(mon_per,outfile)
-                outfile.close()
-
-                #Output the node counts.
                 algs_node[alg].append(node[alg])
-                node_per=[float(x)/original_num_nodes*100 for x in node[alg]]
-                outfile=open(args.out_path+alg+'_node_per_'+grph+'_Trial'+str(trial),'w')
-                json.dump(node_per,outfile)
-                outfile.close()
-
-                #Output the edge counts.
                 algs_edge[alg].append(edge[alg])
-                edge_per=[float(x)/original_num_edges*100 for x in edge[alg]]
-                outfile=open(args.out_path+alg+'_edge_per_'+grph+'_Trial'+str(trial),'w')
-                json.dump(edge_per,outfile)
-                outfile.close()
+                
+                if not printless:
+                    #Output the monitor counts.
+                    mon_per=[float(x)/original_num_nodes*100 for x in mon[alg]]
+                    outfile=open(args.out_path+alg+'_mon_per_'+grph+'_Trial'+str(trial),'w')
+                    json.dump(mon_per,outfile)
+                    outfile.close()
+
+                    #Output the node counts.          
+                    node_per=[float(x)/original_num_nodes*100 for x in node[alg]]
+                    outfile=open(args.out_path+alg+'_node_per_'+grph+'_Trial'+str(trial),'w')
+                    json.dump(node_per,outfile)
+                    outfile.close()
+
+                    #Output the edge counts.
+                    edge_per=[float(x)/original_num_edges*100 for x in edge[alg]]
+                    outfile=open(args.out_path+alg+'_edge_per_'+grph+'_Trial'+str(trial),'w')
+                    json.dump(edge_per,outfile)
+                    outfile.close()
 
             print "{}: {}/{} runs complete".format(grph, trial+1,args.trials)
 
@@ -243,6 +248,16 @@ def main(args):
                 outfile=open(args.out_path+alg+'_node_per_avg_'+grph+'_'+str(args.trials)+'Runs','w')
                 json.dump(node_avg_per,outfile)
                 outfile.close()
+                outfile=open(args.out_path+alg+'_node_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                json.dump(node_avg,outfile)
+                outfile.close()
+                
+                #Output average node std. dev.
+                node_std=[np.std(x) for x in node_tuples]
+                #node_std_per=[float(x)/original_num_nodes*100 for x in node_std]
+                outfile=open(args.out_path+alg+'_node_std_'+grph+'_'+str(args.trials)+'Runs','w')
+                json.dump(node_std,outfile)
+                outfile.close()
 
                 #Output averaged edges
                 edge_tuples=zip(*algs_edge[alg])
@@ -250,6 +265,16 @@ def main(args):
                 edge_avg_per=[float(x)/original_num_edges*100 for x in edge_avg]
                 outfile=open(args.out_path+alg+'_edge_per_avg_'+grph+'_'+str(args.trials)+'Runs','w')
                 json.dump(edge_avg_per,outfile)
+                outfile.close()
+                outfile=open(args.out_path+alg+'_edge_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                json.dump(edge_avg,outfile)
+                outfile.close()
+                
+                #Output average edge std. dev.
+                edge_std=[np.std(x) for x in edge_tuples]
+                #edge_std_per=[float(x)/original_num_edges*100 for x in edge_std]
+                outfile=open(args.out_path+alg+'_edge_std_'+grph+'_'+str(args.trials)+'Runs','w')
+                json.dump(edge_std,outfile)
                 outfile.close()
 
     #End Loop over multiple graphs
@@ -278,6 +303,7 @@ if __name__=="__main__":
     parser.add_argument('-f', action="store_true", dest="mkplot", default=False, help='Output a plot of results')
     parser.add_argument('-m', action="store_true", dest="mkavg", default=False, help='Average all the trials in an Algorithm')
     parser.add_argument('-n', action="store_true", dest="printalgs", default=False, help='Print list of valid algorithm names')
+    parser.add_argument('-L', action="store_true", dest="printless", default=False, help='Do not output individual trial values')
 
     args=parser.parse_args()
 
