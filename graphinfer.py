@@ -88,8 +88,7 @@ def main(args):
         #Import all the algorithm modules
         for alg in args.alg_name:
             try:
-                algsM[alg]=__import__(alg)
-                #algsM[alg]=imp.load_source(alg,".\\Clean_Algorithms\\"+alg+".py")            
+                algsM[alg]=importlib.import_module("Clean_Algorithms."+alg)           
             except:
                 print "Could not import a module for Algorithm: ", alg
         
