@@ -33,6 +33,7 @@ import json
 import numpy as np
 import sys
 import importlib
+import os
 
 
 def main(args):
@@ -87,19 +88,35 @@ def main(args):
             
     elif args.alg_name:
         #Import all the algorithm modules
+        
+        #this tries to add the subfolder for algorithms.
+#        filename='dummyalg.py'
+#        for root,dirs,names in os.walk(args.algpath):
+#            if filename in names:                 
+#                sys.path.append(os.path.join(root,dirs)
+        sys.path.append("C:\Users\kschmit1\Documents\GitHub\Graph_Inference\Clean_Algorithms")
+
         for alg in args.alg_name:
             try:
-                tmpstr='Clean_Algorithms.HC_p.py'
-                algsM[alg]=importlib.import_module('HC_p')           
+                #tmpstr='Clean_Algorithms.HC_p.py'
+                algsM[alg]=importlib.import_module(alg)           
             except:
-                print "Could not import a module for Algorithm: ", alg
+                print "Could not import a module (v1) for Algorithm: ", alg
+#            try:
+#                filename=alg+'.py'
+#                for root,dirs,names in os.walk(args.algpath):
+#                    if filename in names:
+#                        print "got to import"                       
+#                        algsM[alg]=imp.load_source(alg,os.path.join(root,filename))                    
+#            except:
+#                print "Could not import a module (v2) for Algorithm: ", alg
         
         #Error check to make sure we actually loaded an algorithm.
         if len(algsM)==0:
             try:
                 #args.alg_name.append('UBDn')
-                algsM[alg]=__import__('UBDn')
-                print "No valid algorithm input could load. Using UBDn"
+                algsM[alg]=__import__('FDD')
+                print "No valid algorithm input could load. Using FDD"
             except:
                 sys.exit("Could not import any algorithm module")
                 
@@ -116,7 +133,10 @@ def main(args):
     for grph in args.graph_name:
         #Read in the graph to work on.
         try:
-            graphdic[grph]=nx.read_gexf(args.inpath+grph+'.gexf', node_type=int)
+            filename=grph+'.gexf'
+            for root,dirs,names in os.walk(args.inpath):
+                if filename in names:
+                    graphdic[grph]=nx.read_gexf(os.path.join(root,filename), node_type=int)
         except:
             #If we couldn't read the graph in. Give error, and go to next graph
             print "Could not read in graph ", grph
@@ -205,7 +225,7 @@ def main(args):
                 algs_node[alg].append(node[alg])
                 algs_edge[alg].append(edge[alg])
                 
-                if not printless:
+                if not args.printless:
                     #Output the monitor counts.
                     mon_per=[float(x)/original_num_nodes*100 for x in mon[alg]]
                     outfile=open(args.out_path+alg+'_mon_per_'+grph+'_Trial'+str(trial),'w')
@@ -293,8 +313,8 @@ if __name__=="__main__":
 
     #This could be changed to support opening the files on input. But might cause dictionary issues later.
     parser.add_argument('-g', action="append", dest="graph_name", type=str, help='Input Graph(s) in .gexf format')
-    parser.add_argument('-i', action="store", type=str, dest='inpath', default='', help='Path to input graphs')
-    parser.add_argument('-I', action="store", type=str, dest='algpath', default='',help='Path to algorithms')
+    parser.add_argument('-i', action="store", type=str, dest='inpath', default=os.getcwd(), help='Path to input graphs')
+    parser.add_argument('-I', action="store", type=str, dest='algpath', default=os.getcwd(),help='Path to algorithms')
     parser.add_argument('-a', action="append", dest="alg_name", type=str, help='Algorithms to use')
     parser.add_argument('-p', action="append", dest="params", help='Parameters passed to each Algorithm')
     parser.add_argument('-o', action="store",dest="out_path", type=str, default='', help='Path to output files to')
