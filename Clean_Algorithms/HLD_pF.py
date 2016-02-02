@@ -33,24 +33,23 @@ import numpy as np
 
 class Alg():
     '''
-    Algorithm: Highest-Local Degree with Restart/Walk-Len/Found (HLD_rLF)
-
-    IMPORTANT NOTE: This might not be working as thought...
+    Algorithm: Highest-Local Degree with Restart/Found (HLD_pF)
 
     Current Algorithm Behavior:
 
         Pick Start: pick random, non-monitor node
 
         Place Next:
-            Restart if half of neighbors have monitors
-            OR
-            Restart if walk-length > log(number of nodes in graph)
+            Restart if half of neighbors have monitors        
             
             Otherwise:
                 Examine neighbors without monitors.
                 Pick highest degree neighbor without monitor
             
-                If no neighbors w/o monitors exist, teleport to a node without a monitor
+                If no neighbors w/o monitors exist
+                Randomly decide based on parameter if we:
+                    Teleport to a node without a monitor
+                    Teleport to maximum degree seen node
                     
 
     '''
@@ -90,10 +89,13 @@ class Alg():
         return
 
     def place_next_monitor(self, node, param):
-        if self.walklen>self.maxwalklen:
+        #if self.walklen>self.maxwalklen:
             #Check walk length, and restart if max-len exceeded.
-            next_monitor=self.pick_start()
+        #    next_monitor=self.pick_start()
         
+        if 0:
+            #placeholder to keep indenting the same without walk-length
+            print "This shouldn't happen. Check logic in place next monitor"
         else:
             #If walklength not exceed, pick like normal (high local deg)
 
@@ -106,7 +108,11 @@ class Alg():
             #Check how many neighbors we have to pick from.
             if len(neighbor_set)< len(neighbors)*0.5:
                 #If less than half, teleport
-                next_monitor=self.pick_start()
+                next_monitor=self.pick_start()                              
+            #if 0:
+                #Default 'false' to keep code/indentation the same as when checking
+                # The condition for neighbots commented out above.
+            #    print "This should never occur. Check logic in place next monitor"                        
             else:
                 #otherwise, continue picking the highest local degree
                 for neighbor in neighbor_set:
@@ -126,8 +132,34 @@ class Alg():
                     self.monitor_set.add(next_monitor) #Note this is here because 'pick_start' already adds the monitor. 
                     self.walklen+=1
                 else:
-                    #If not, pick a random restart.
-                    next_monitor= self.pick_start()
+                    #generate a random value between 0 and 1
+                    magic_number = np.random.uniform(0,1)
+
+                    if param >= magic_number:     
+                        #If we are out of node's we've seen (i.e. sorted_degree empty)
+                        if not self.next_highest.keys():
+                            #Pick a random start node without a monitor
+                            next_monitor = self.pick_start()
+                        else:
+                            #Take the next highest degree node we've seen.
+                            next_monitor = self.next_highest[self.highseen_key].pop()
+                            self.monitor_set.add(next_monitor)
+
+                            #Get rid of an empty key. 
+                            self._empty_check(self.highseen_key)
+
+                    else:
+                        #Pick a random start node that doesn't already have a monitor
+                        next_monitor = self.pick_start()
+
+                        #Check the list we're maintaining of seen nodes, if it's there
+                        # remove it.
+                        next_monitor_degree = self.graph.degree(next_monitor)
+                        try:
+                            self.next_highest[next_monitor_degree].remove(next_monitor)
+                            self._empty_check(next_monitor_degree)
+                        except:
+                            pass
 
         
         return next_monitor

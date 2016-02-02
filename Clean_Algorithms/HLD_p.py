@@ -77,6 +77,20 @@ class Alg():
         
         for neighbor in neighbors:
             self.result_graph.add_edge(node, neighbor)  ###we will need if/else commands here
+                       
+            degree = self.graph.degree(neighbor)
+            #maintain a dict of nodes we've seen and their degrees
+            if degree not in self.next_highest.keys() and neighbor not in self.monitor_set:
+                #Make a new entry into the dict if degree is unseen before.
+                self.next_highest[degree] = set([neighbor])
+                
+                #Check if this is a new, highest seen degree.
+                if degree>self.highseen_key:
+                    self.highseen_key=degree
+                    
+            elif neighbor not in self.monitor_set:
+                #If degree is seen, add neighbor to list
+                self.next_highest[degree].add(neighbor)   
   
     #private method. checks whether there are
     #any nodes associated with a given degree.
@@ -106,46 +120,28 @@ class Alg():
         for neighbor in neighbor_set:
 
             degree = self.graph.degree(neighbor)
-            
-            #maintain a dict of nodes we've seen and their degrees
-            #Commented out because at last runs, did not have. Appears to be needed though!
-            #See the "Else" below. Otherwise we teleport...
-            
-            #if degree not in self.next_highest.keys() and neighbor not in self.monitor_set:
-            #    self.next_highest[degree] = set([neighbor])           
-            #elif neighbor not in self.monitor_set:
-            #    self.next_highest[degree].add(neighbor)                            
-
+                            
             if degree > max_degree:
                 neighbor_list = []
                 max_degree = degree
                 neighbor_list.append(neighbor)
             elif degree == max_degree:
                 neighbor_list.append(neighbor)
-      
+                 
         #If the set is non-empty, we meet this condition and pick a next vertex
         if len(neighbor_list)>0:
             next_monitor = np.random.choice(neighbor_list)
+            self.monitor_set.add(next_monitor)
                
         else:
-            # ---------------------------
-            # NEED TO CHECK CODE COVERAGE HERE.
-            # I THINK THIS MOSTLY DOESN'T HAPPEN/WORK RIGHT.
-            # JUST DOES pick_start() -- K
-            #----------------------------            
-            
             #generate a random value between 0 and 1
             magic_number = np.random.uniform(0,1)
             
             #Only algorithm 2 is prob = 1, algorithm 1 is prob = 0
             if prob >= magic_number:     
                 #print "Using algorithm 2 for next monitor"
-                
                 #If the set is non-empty, we meet this condition and pick a next vertex
-                
-                #Get list of degrees seen
-                sorted_degrees = self.next_highest.keys()
-                
+                             
                 #If we are out of node's we've seen (i.e. sorted_degree empty)
                 if not self.next_highest.keys():
                     #Pick a random start node without a monitor
@@ -153,6 +149,7 @@ class Alg():
                 else:
                     #Take the next highest degree node we've seen.
                     next_monitor = self.next_highest[self.highseen_key].pop()
+                    self.monitor_set.add(next_monitor)
                     
                     #Get rid of an empty key. 
                     self._empty_check(self.highseen_key)
@@ -172,7 +169,7 @@ class Alg():
                 except:
                     pass
 
-        self.monitor_set.add(next_monitor)
+        
         #print "Next monitor", next_monitor  
         return next_monitor
         

@@ -101,7 +101,7 @@ class Alg():
         neighbor_set = set(neighbors) - self.monitor_set
 
         #Check how many neighbors we have to pick from.
-        if len(neighbor_set)< len(neighbors):
+        if len(neighbor_set)< len(neighbors)*0.5:
             #If less than half, teleport
             next_monitor=self.pick_start()
         else:
@@ -120,12 +120,12 @@ class Alg():
             if len(neighbor_list)>0:
                 #If we found some max-degree nodes, pick one.
                 next_monitor = np.random.choice(neighbor_list)
+                self.monitor_set.add(next_monitor)
                 self.walklen+=1
             else:
                 #If not, pick a random restart.
                 next_monitor= self.pick_start()
-
-        self.monitor_set.add(next_monitor)
+       
         return next_monitor
     
     def stop(self, allotment):

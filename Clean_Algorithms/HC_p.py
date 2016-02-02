@@ -153,30 +153,13 @@ class Alg():
             elif neighbor not in self.monitor_set:
                 #If degree is seen, add neighbor to list
                 self.next_highest[degree].add(neighbor)                            
-
-            
-                
-        #Test code for simpler computation of finding max-neighbors
-        #Usings maxes naively causes a problem in graphs with degree 0 nodes.
-        #Needs to be encompassed in a "try" statement so as not to error out.
-        try:
-            #neighbor_list2=maxes(neighbors, key=lambda mynode:self.graph.degree(mynode))
-            pass
-        except:
-            #Some nodes have no neighbors. Then we need to do this differently/restart.
-            #print "Neigh: ",neighbors, " node: ",node
-            pass
-        
-        #if neighbor_list2==neighbor_list:
-        #    print "Same max neigh list"
-        #else:
-        #    print "Not same max neigh list"
-            
+     
         #take the set difference between the max-degree neighbors we just found
         #and the set of all nodes that have previously been monitors
         neighbor_set = set(neighbor_list) - self.monitor_set
         
         #If the set is non-empty, we meet this condition and pick a next vertex
+        #This is only true if the HIGHEST DEGREE neighbor(s) doesn't have a monitor
         if len(neighbor_set)>0:
             #Pop the next vertex from the set. Then update our seen structure.
             next_monitor = neighbor_set.pop()
