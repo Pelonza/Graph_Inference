@@ -5,8 +5,8 @@
         <data xmlns="http://nbpython.dev.java.net/ns/php-project/1">
             <name>GraphInfer</name>
             <sources>
+                <root id="src.Clean_Algorithms.dir"/>
                 <root id="Graph_Inference.dir"/>
-                <root id="Clean Algorithms.dir"/>
                 <root id="src.Networks.dir"/>
             </sources>
             <tests/>

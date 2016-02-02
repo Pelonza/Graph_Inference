@@ -231,19 +231,19 @@ def main(args):
                 if not args.printless:
                     #Output the monitor counts.
                     mon_per=[float(x)/original_num_nodes*100 for x in mon[alg]]
-                    outfile=open(args.out_path+alg+'_mon_per_'+grph+'_Trial'+str(trial),'w')
+                    outfile=open(args.out_path+alg+'_mon_per_'+grph+'_Trial'+str(trial)+'.json','w')
                     json.dump(mon_per,outfile)
                     outfile.close()
 
                     #Output the node counts.          
                     node_per=[float(x)/original_num_nodes*100 for x in node[alg]]
-                    outfile=open(args.out_path+alg+'_node_per_'+grph+'_Trial'+str(trial),'w')
+                    outfile=open(args.out_path+alg+'_node_per_'+grph+'_Trial'+str(trial)+'.json','w')
                     json.dump(node_per,outfile)
                     outfile.close()
 
                     #Output the edge counts.
                     edge_per=[float(x)/original_num_edges*100 for x in edge[alg]]
-                    outfile=open(args.out_path+alg+'_edge_per_'+grph+'_Trial'+str(trial),'w')
+                    outfile=open(args.out_path+alg+'_edge_per_'+grph+'_Trial'+str(trial)+'.json','w')
                     json.dump(edge_per,outfile)
                     outfile.close()
 
@@ -260,7 +260,7 @@ def main(args):
                 mon_tuples=zip(*algs_mon[alg])               
                 mon_avg=[np.mean(x) for x in mon_tuples]
                 mon_avg_per=[float(x)/original_num_nodes*100 for x in mon_avg]
-                outfile=open(args.out_path+alg+'_mon_per_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_mon_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(mon_avg_per,outfile)
                 outfile.close()
 
@@ -268,17 +268,17 @@ def main(args):
                 node_tuples=zip(*algs_node[alg])               
                 node_avg=[np.mean(x) for x in node_tuples]
                 node_avg_per=[float(x)/original_num_nodes*100 for x in node_avg]
-                outfile=open(args.out_path+alg+'_node_per_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_node_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(node_avg_per,outfile)
                 outfile.close()
-                outfile=open(args.out_path+alg+'_node_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_node_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(node_avg,outfile)
                 outfile.close()
                 
                 #Output average node std. dev.
                 node_std=[np.std(x) for x in node_tuples]
                 #node_std_per=[float(x)/original_num_nodes*100 for x in node_std]
-                outfile=open(args.out_path+alg+'_node_std_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_node_std_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(node_std,outfile)
                 outfile.close()
 
@@ -286,17 +286,17 @@ def main(args):
                 edge_tuples=zip(*algs_edge[alg])
                 edge_avg=[np.mean(x) for x in edge_tuples]
                 edge_avg_per=[float(x)/original_num_edges*100 for x in edge_avg]
-                outfile=open(args.out_path+alg+'_edge_per_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_edge_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(edge_avg_per,outfile)
                 outfile.close()
-                outfile=open(args.out_path+alg+'_edge_avg_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_edge_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(edge_avg,outfile)
                 outfile.close()
                 
                 #Output average edge std. dev.
                 edge_std=[np.std(x) for x in edge_tuples]
                 #edge_std_per=[float(x)/original_num_edges*100 for x in edge_std]
-                outfile=open(args.out_path+alg+'_edge_std_'+grph+'_'+str(args.trials)+'Runs','w')
+                outfile=open(args.out_path+alg+'_edge_std_'+grph+'_'+str(args.trials)+'Runs.json','w')
                 json.dump(edge_std,outfile)
                 outfile.close()
 
