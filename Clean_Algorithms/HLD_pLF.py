@@ -66,6 +66,11 @@ class Alg():
         #Set this now, incase base graph changes
         self.maxwalklen=np.log(graph.number_of_nodes())
         self.walklen=0
+
+        #Set up the dictionary for seen nodes
+        self.next_highest = {}
+        self.highseen_key=0
+        
         return
 
     def pick_start(self):

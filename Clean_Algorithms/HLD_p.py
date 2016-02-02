@@ -59,6 +59,7 @@ class Alg():
         self.result_graph = nx.Graph()
         self.monitor_set = set()
         self.next_highest = {}
+        self.highseen_key=0
 
     #public method. Picks a random node that hasn't been a monitor yet.
     #returns the node number

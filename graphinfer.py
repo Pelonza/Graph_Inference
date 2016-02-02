@@ -90,29 +90,19 @@ def main(args):
             sys.exit("Could not import any graph!")
             
     elif args.alg_name:
-        #Import all the algorithm modules
-        
-        #this tries to add the subfolder for algorithms.
-#        filename='dummyalg.py'
-#        for root,dirs,names in os.walk(args.algpath):
-#            if filename in names:                 
-#                sys.path.append(os.path.join(root,dirs)
-        sys.path.append("C:\Users\kschmit1\Documents\GitHub\Graph_Inference\Clean_Algorithms")
-
+        try:           
+            filename=args.alg_name[0]+'.py'
+            for root,dirs,names in os.walk(args.algpath):
+                if filename in names:
+                    sys.path.append(root)
+        except:
+            print "Couldn't find a path to the first algorithm name"
         for alg in args.alg_name:
             try:
                 #tmpstr='Clean_Algorithms.HC_p.py'
                 algsM[alg]=importlib.import_module(alg)           
             except:
                 print "Could not import a module (v1) for Algorithm: ", alg
-#            try:
-#                filename=alg+'.py'
-#                for root,dirs,names in os.walk(args.algpath):
-#                    if filename in names:
-#                        print "got to import"                       
-#                        algsM[alg]=imp.load_source(alg,os.path.join(root,filename))                    
-#            except:
-#                print "Could not import a module (v2) for Algorithm: ", alg
         
         #Error check to make sure we actually loaded an algorithm.
         if len(algsM)==0:
