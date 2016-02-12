@@ -129,7 +129,8 @@ def main(args):
             filename=grph+'.gexf'
             for root,dirs,names in os.walk(args.inpath):
                 if filename in names:
-                    graphdic[grph]=nx.read_gexf(os.path.join(root,filename), node_type=int)
+                    #print os.path.join(root,filename)
+                    graphdic[grph]=nx.read_gexf(os.path.join(root,filename))
         except:
             #If we couldn't read the graph in. Give error, and go to next graph
             print "Could not read in graph ", grph
