@@ -154,6 +154,7 @@ class Alg():
 
 
     def place_next_monitor(self, node, param):
+        next_monitor=[]
         if self.no_new>=param:
             next_monitor=self.pick_start()
         else:
@@ -163,14 +164,17 @@ class Alg():
             seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
         
             #Get the node(s) with the highest fake-degree, and then the highest degree.
-            fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-            best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
-
-            #Pop the first 'best' node for the next monitor
-            if len(best_node_list) >= 1:
-                next_monitor = best_node_list.pop()
-            else:
-                print "There's an error somewhere or we have a disconnected graph"
-
+            if seen_list: #Check that we saw other nodes
+                fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
+                if fake_max_degree_list:
+                    best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
+                    #Pop the first 'best' node for the next monitor
+                    if best_node_list:
+                        next_monitor = best_node_list.pop()
+                    
+            if not next_monitor:
+                print "No viable next node. Probably disconnected graph. Picking random-start"
+                next_monitor=self.pick_start()
+                
         self.monitor_set.add(next_monitor)
         return next_monitor

@@ -51,8 +51,8 @@ def main(args):
     if args.printalgs:
         #Print the list of valid short argument names
         print "Valid Algorithm are:"
-        print "Algorithms with 'r' require a parameter for restarting"
-        print "Algorithms with 'p' require a parameter for probability"
+        print "Algorithms with 'r' require a parameter for restarting (r = placed monitors with no new discoveries, r>=1)"
+        print "Algorithms with 'p' require a parameter for probability (1-p = probability of restarting, 0<= p <= 1)"
         print "Cannot currently run algorithms with both a 'p' and 'r' in same call"
         print "UBDn      : Upper Bound Discovery for nodes"
         print "UBDe      : Upper Bound Discovery for edges"
