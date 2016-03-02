@@ -146,7 +146,7 @@ class Alg():
         #Default existance. 
         next_monitor=None
         
-        if self.no_new==param:
+        if self.no_new>=2:
             #Pick random monitor from unseen nodes if no new info in 2 tries
             next_monitor=self.pick_start()
         else:

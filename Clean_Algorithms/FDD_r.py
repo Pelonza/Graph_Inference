@@ -1,6 +1,6 @@
 '''
 Created by Karl Schmitt, Nicholas Juliano, Brittany Reynolds, Erin Moore, Ralucca Gera, and Erik
-Commit Date 7/27/2015
+Original Commit Date 7/27/2015
 
 You may contact the primary author at:
 karl <dot> schmitt <at> valpo <dot> edu
@@ -19,7 +19,10 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Modified 3/2/16
 '''
+
 
 import networkx as nx
 import numpy as np
@@ -36,6 +39,10 @@ import sys
 #
 # Updates by removing edges of monitor nodes
 # Fake degree is the number of unseen neighbors
+
+#Restart value is hard-coded as 2 for now. Parameter Passing did not seem to
+# be working correctly (a run on General Relativity replicated a no-restart 
+# output.
 
 #Helper function to get list of things with max values.        
 def maxes(a, key=None):
@@ -155,7 +162,7 @@ class Alg():
 
     def place_next_monitor(self, node, param):
         next_monitor=[]
-        if self.no_new>=param:
+        if self.no_new>=2:
             next_monitor=self.pick_start()
         else:
             #Get the list of seen nodes, without monitors
