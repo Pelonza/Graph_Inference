@@ -75,6 +75,8 @@ def main(args):
         print "RPD       : Random Placement Dumb, could place on monitor (don't use this)"
         print "RWS       : Random Walk Smart, walk can't choose neighbors w/ monitors"
         print "RWD       : Random Walk Dumb, walk can choose neighbors w/ monitors"
+        print "MUDD      : Undiscovered Degree for Multilayered Networks. Use AlgPrint"
+        print "MUDDp     : Undiscovered Degree (with Probability) for Multi-Nets. Use AlgPrint"
         
         
         
@@ -129,7 +131,7 @@ def main(args):
             filename=grph+'.gexf'
             for root,dirs,names in os.walk(args.inpath):
                 if filename in names:
-                    #print os.path.join(root,filename)
+                    print os.path.join(root,filename)
                     graphdic[grph]=nx.read_gexf(os.path.join(root,filename))
         except:
             #If we couldn't read the graph in. Give error, and go to next graph
@@ -238,6 +240,15 @@ def main(args):
                     json.dump(edge_per,outfile)
                     outfile.close()
 
+            #This is after the "save to multi-trial" portion, because the infer objects are
+            #Reset after each trial. So, any special printing should happen first!
+            if args.myalgprint:
+                #If turned on, calls a user/algorithm defined print function to
+                #output any special internal data-structures.
+                for alg in algsM.keys():
+                    infer_objs[alg].myprint((args.out_path, alg, grph, trial))
+                
+                
             print "{}: {}/{} runs complete".format(grph, trial+1,args.trials)
 
         #End loop over multiple trials.
@@ -291,6 +302,10 @@ def main(args):
                 json.dump(edge_std,outfile)
                 outfile.close()
 
+        
+                
+                
+                
     #End Loop over multiple graphs
 
     #--------------
@@ -318,6 +333,7 @@ if __name__=="__main__":
     parser.add_argument('-m', action="store_true", dest="mkavg", default=False, help='Average all the trials in an Algorithm')
     parser.add_argument('-n', action="store_true", dest="printalgs", default=False, help='Print list of valid algorithm names')
     parser.add_argument('-L', action="store_true", dest="printless", default=False, help='Do not output individual trial values')
+    parser.add_argument('-v', action="store_true", dest="myalgprint", default=False, help='Call an algorithms special print function')
 
     args=parser.parse_args()
 
