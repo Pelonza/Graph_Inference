@@ -19,11 +19,14 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Updated by Scott Warnke, 2016: For Multilayered Networks
 '''
 
 import networkx as nx
 import numpy as np
 import sys
+import json
 
 #Algorithm: Fake-Degree Discovery (FDD)
 #
@@ -39,6 +42,9 @@ import sys
 def maxes(a, key=None):
     if key is None:
         key = lambda x: x
+    if not a:
+        null_list=[]
+        return null_list
     m, max_list = key(a[0]), []
     for s in a:
         k = key(s)
@@ -57,7 +63,7 @@ class Alg():
     def __init__(self, graph, sd):
         #We need a deepcopy if the self.graph gets modified.
         self.graph = graph.copy() 
-        np.random.seed(sd)
+        np.random.seed()
         self.result_graph = nx.Graph()
         
         #Sets with/without monitors.
@@ -67,14 +73,24 @@ class Alg():
         #Internal dictionaries
         self.next_highest = {}
         self.seen = Counter()
+        
+        #2-Colored Components
+        self.blueseen = 0
+        self.redseen = 0
+        self.monitor_fancy = list()
+        
                         
         #Initialize all fake degrees to degree
         self.fake_degree=dict()
+        self.br_info=dict()
         #for node in self.monitor_free:
         for node in nx.nodes(self.graph):
             self.fake_degree[node]=self.graph.degree(node)
-            
-        
+            if('R' in node[0]):
+                self.br_info[node] = (float(int(node.split('_')[1]) + int(node.split('_')[2]) + int(node.split('_')[3])))
+            else:
+                self.br_info[node] = (float(int(node.split('_')[1]) + int(node.split('_')[2]) + int(node.split('_')[3]) + int(node.split('_')[4]) + int(node.split('_')[5]) + int(node.split('_')[6]) + int(node.split('_')[7]) + int(node.split('_')[8]) + int(node.split('_')[9]) + int(node.split('_')[10])))
+                
     #public method. Returns true if we have placed all the monitors
     #we have available to us, else returns false
     def stop(self, allotment):
@@ -94,11 +110,18 @@ class Alg():
         start_node = np.random.choice([x for x in self.graph.nodes() if x not in self.monitor_set])
         self.monitor_set.add(start_node)
         self.monitor_free.remove(start_node)
+        print(("start_node: " +  start_node))
         return start_node
 
     #public method. adds all edges (in NetworkX adding an edge adds the nodes if not already there)
     #from the node to all of its neighbors
     def add_neighbors(self, node):
+        '''
+        if('B' in node[0]):
+            print("Blue Node: " + node)
+        else:
+            print("Red Node: " + node)
+        '''
         #Have to add self, incase I have no neighbors.
         self.result_graph.add_node(node)
         
@@ -145,35 +168,89 @@ class Alg():
 
 
     def place_next_monitor(self, node, prob):
-    
+        #br_node = 0.0
+        
+        #print("Next Monitor: " + node)
+
+        #for iy in G.neighbors(ix)
+        
         #Get the list of seen nodes, without monitors
         seen_list=list(self.seen.keys())
         seen_list.remove('Total')
         seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
         
-        #Get the node(s) with the highest fake-degree, and then the highest degree.
-        fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-        best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
+        best_node_list = []
 
-        #test_fake_max_degree_list=maxes(self.monitor_free, key=lambda mynode: self.fake_degree[mynode])
+        #If any of the neighbors of the newest monitor have been seen, use the collected info first.
+        test_list=[n for n in self.graph.neighbors(node) if n in seen_list]
+        best_node_list=maxes(test_list, key= lambda mynode: self.br_info[mynode])
 
-        #Test FDD vs. UBDn
-        #if fake_max_degree_list==test_fake_max_degree_list:
-        #    print "Lists are same"
-        #else:
-        #    print "Lists are different"
+        #If none of the neighbors of the monitor are seen, do normal UDD.
+        if not best_node_list:
+            fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
+            best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))    
 
         #Pop the first 'best' node for the next monitor
+        
         if len(best_node_list) >= 1:
             next_monitor = best_node_list.pop()
         else:
-            print("There's an error somewhere or we have a disconnected graph")
+            print("There's an error somewhere or we have a disconnected graph. Picking Randomly")
+            next_monitor=self.pick_start()
 
         self.monitor_set.add(next_monitor)
-
+        
+        
         try:
             self.monitor_free.remove(next_monitor)
         except:
-            print("Cannot place new monitor")
+            print(("Cannot place new monitor: " + next_monitor))
+            
+        if('B' in next_monitor[0]):
+            self.blueseen += 1
+            self.monitor_fancy.append( ("Blue", next_monitor, len(self.monitor_set)-1, self.redseen, self.blueseen))
+            #print("Red Node: " + next_monitor)
+        else:
+            self.redseen += 1
+            self.monitor_fancy.append( ("Red", next_monitor, len(self.monitor_set)-1, self.redseen, self.blueseen))
+            #print("Blue Node: " + next_monitor)
         
+
         return next_monitor
+    
+    
+    def myprint(self,myargs):
+        #This function will print out any internal data objects needed.
+        #For the Multi-colored/layered, prints out blue/red data.
+        
+        #Desired output looks like:
+        # Red/Blue, ID, Mon#, Red#, Blue#, Red%, Blue%
+        
+        #Old Code
+        #myoutput=list()
+        #myblue_out=list()
+        #myred_out=list()
+        myoutput= list( (x[0], x[1], x[2], x[3], x[4], float(x[3])/float(self.redseen), float(x[4])/float(self.blueseen)) for x in self.monitor_fancy)
+        myred_out= list( (float(x[3])/float(self.redseen)) for x in self.monitor_fancy)
+        myblue_out=list( float((x[4])/float(self.blueseen)) for x in self.monitor_fancy)
+        
+        #Below was older code in a for-loop... which might actually be faster...? 
+        '''
+            tmp=list(entry)
+            tmp.append(entry[3]/self.redseen)
+            myred_out.append(entry[3]/self.redseen)
+            tmp.append(entry[4]/self.blueseen)
+            myblue_out.append(entry[4]/self.blueseen)
+            myoutput.append(tmp)
+        '''
+        
+        outfile=open(myargs[0]+myargs[1]+'_fancy_out_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
+        json.dump(myoutput,outfile)
+        outfile.close()
+        outfile=open(myargs[0]+myargs[1]+'_redperonly_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
+        json.dump(myred_out,outfile)
+        outfile.close()
+        outfile=open(myargs[0]+myargs[1]+'_blueperonly_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
+        json.dump(myblue_out,outfile)
+        outfile.close()
+        

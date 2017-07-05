@@ -80,7 +80,7 @@ class Alg():
     def stop(self, allotment):
         #May be obsolete.
         if allotment > self.graph.number_of_nodes():
-            print("Error, cannot have more than", self.graph.number_of_nodes(), "monitors!")
+            print "Error, cannot have more than", self.graph.number_of_nodes(), "monitors!"
             sys.exit(1)
 
         if len(self.monitor_set) < allotment:
@@ -113,7 +113,7 @@ class Alg():
         try:
             self.seen[node]='inf'
         except:
-            print("Node (monitor) wasn't in neighbor list")
+            print "Node (monitor) wasn't in neighbor list"
 
         for neighbor in neighbors:
             #Add edge between monitor (node) and it's neighbor to found graph
@@ -147,7 +147,7 @@ class Alg():
     def place_next_monitor(self, node, prob):
     
         #Get the list of seen nodes, without monitors
-        seen_list=list(self.seen.keys())
+        seen_list=self.seen.keys()
         seen_list.remove('Total')
         seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
         
@@ -167,13 +167,13 @@ class Alg():
         if len(best_node_list) >= 1:
             next_monitor = best_node_list.pop()
         else:
-            print("There's an error somewhere or we have a disconnected graph")
+            print "There's an error somewhere or we have a disconnected graph"
 
         self.monitor_set.add(next_monitor)
 
         try:
             self.monitor_free.remove(next_monitor)
         except:
-            print("Cannot place new monitor")
+            print "Cannot place new monitor"
         
         return next_monitor

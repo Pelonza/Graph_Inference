@@ -177,3 +177,7 @@ class Alg():
             print("Cannot place new monitor")
         
         return next_monitor
+
+    def myprint(self, myargs):
+        #Do Nothing
+        print("No Special Output")

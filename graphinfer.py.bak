@@ -39,7 +39,7 @@ import os
 def main(args):
 
     #Print the args/namespace to confirm everything got entered that I thought got entered.
-    print(args)
+    print args
 
     #sys.path.append('C:\\Users\\kschmit1\\Documents\\GitHub\\Graph_Infer\\Networks')
     #sys.path.append('C:\\Users\\kschmit1\\Documents\\GitHub\\Graph_Infer\\Clean_Algorithms')
@@ -50,33 +50,33 @@ def main(args):
     
     if args.printalgs:
         #Print the list of valid short argument names
-        print("Valid Algorithm are:")
-        print("Algorithms with 'r' require a parameter for restarting (r = placed monitors with no new discoveries, r>=1)")
-        print("Algorithms with 'p' require a parameter for probability (1-p = probability of restarting, 0<= p <= 1)")
-        print("Cannot currently run algorithms with both a 'p' and 'r' in same call")
-        print("UBDn      : Upper Bound Discovery for nodes")
-        print("UBDe      : Upper Bound Discovery for edges")
-        print("FDD       : Fake-Degree Discovery. Fake Degree is # of unseen neighbors")
-        print("FDD_r     : Fake-Degree Discovery. Includes restart after 2 monitors with no new nodes added")
-        print("HGD_LS    : Highest Global Degree, Least Seen")
-        print("HGD_LS_r  : Highest Global Degree, Least Seen, restart after 2 with no new info.")
-        print("HC_p      : Hill-Climbing with Probablistic Restart")
-        print("HC_pL     : Hill-Climbing with Probablistic Restart, walk < log(#nodes)")
-        print("HC_pF     : Hill-Climbing with Probablistic Restart, 1/2 neighbors monitors")
-        print("HC_pLF    : Hill-Climbing with Prob. Restart, walk < log(#nodes), 1/2 neighbors monitors")
-        print("HLD_p     : Highest Local Degree, restart if no monitorless neighbors**Might have error")
-        print("HLD_L     : Highest Local Degree, restart if walk > log(#nodes)")
-        print("HLD_F     : Highest Local Degree, restart if 1/2 neighbors have monitors")
-        print("HLD_LF    : Highest Local Degree, restart if walk> log(#nodes) or 1/2 neighbors")
-        print("HLD_pL    : Highest Local Degree Probablistic Restart, walk < log(#nodes)**Might have error")
-        print("HLD_pF    : Highest Local Degree Probablistic Restart, 1/2 neighbors monitors**Might have error")
-        print("HLD_pLF   : Highest Local Degree Probablistic Restart, walk < log(#nodes), 1/2 neighbors monitors**Might have error")
-        print("RPS       : Random Placement Smart, (no placement on monitors)")
-        print("RPD       : Random Placement Dumb, could place on monitor (don't use this)")
-        print("RWS       : Random Walk Smart, walk can't choose neighbors w/ monitors")
-        print("RWD       : Random Walk Dumb, walk can choose neighbors w/ monitors")
-        print("MUDD      : Undiscovered Degree for Multilayered Networks. Use AlgPrint")
-        print("MUDDp     : Undiscovered Degree (with Probability) for Multi-Nets. Use AlgPrint")
+        print "Valid Algorithm are:"
+        print "Algorithms with 'r' require a parameter for restarting (r = placed monitors with no new discoveries, r>=1)"
+        print "Algorithms with 'p' require a parameter for probability (1-p = probability of restarting, 0<= p <= 1)"
+        print "Cannot currently run algorithms with both a 'p' and 'r' in same call"
+        print "UBDn      : Upper Bound Discovery for nodes"
+        print "UBDe      : Upper Bound Discovery for edges"
+        print "FDD       : Fake-Degree Discovery. Fake Degree is # of unseen neighbors"
+        print "FDD_r     : Fake-Degree Discovery. Includes restart after 2 monitors with no new nodes added"
+        print "HGD_LS    : Highest Global Degree, Least Seen"
+        print "HGD_LS_r  : Highest Global Degree, Least Seen, restart after 2 with no new info."
+        print "HC_p      : Hill-Climbing with Probablistic Restart"
+        print "HC_pL     : Hill-Climbing with Probablistic Restart, walk < log(#nodes)"
+        print "HC_pF     : Hill-Climbing with Probablistic Restart, 1/2 neighbors monitors"
+        print "HC_pLF    : Hill-Climbing with Prob. Restart, walk < log(#nodes), 1/2 neighbors monitors"
+        print "HLD_p     : Highest Local Degree, restart if no monitorless neighbors**Might have error"
+        print "HLD_L     : Highest Local Degree, restart if walk > log(#nodes)"
+        print "HLD_F     : Highest Local Degree, restart if 1/2 neighbors have monitors"
+        print "HLD_LF    : Highest Local Degree, restart if walk> log(#nodes) or 1/2 neighbors"
+        print "HLD_pL    : Highest Local Degree Probablistic Restart, walk < log(#nodes)**Might have error"
+        print "HLD_pF    : Highest Local Degree Probablistic Restart, 1/2 neighbors monitors**Might have error"
+        print "HLD_pLF   : Highest Local Degree Probablistic Restart, walk < log(#nodes), 1/2 neighbors monitors**Might have error"
+        print "RPS       : Random Placement Smart, (no placement on monitors)"
+        print "RPD       : Random Placement Dumb, could place on monitor (don't use this)"
+        print "RWS       : Random Walk Smart, walk can't choose neighbors w/ monitors"
+        print "RWD       : Random Walk Dumb, walk can choose neighbors w/ monitors"
+        print "MUDD      : Undiscovered Degree for Multilayered Networks. Use AlgPrint"
+        print "MUDDp     : Undiscovered Degree (with Probability) for Multi-Nets. Use AlgPrint"
         
         
         
@@ -85,7 +85,7 @@ def main(args):
     elif not args.graph_name:
         #Makes sure there's one graph to run on.
         
-        print("No input graphs defined. Defaulting to barabasi.")
+        print "No input graphs defined. Defaulting to barabasi."
         try:
             args.graph_name.append('barabasi')
         except:
@@ -98,26 +98,26 @@ def main(args):
                 if filename in names:
                     sys.path.append(root)
         except:
-            print("Couldn't find a path to the first algorithm name")
+            print "Couldn't find a path to the first algorithm name"
         for alg in args.alg_name:
             try:
                 #tmpstr='Clean_Algorithms.HC_p.py'
                 algsM[alg]=importlib.import_module(alg)           
             except:
-                print("Could not import a module (v1) for Algorithm: ", alg)
+                print "Could not import a module (v1) for Algorithm: ", alg
         
         #Error check to make sure we actually loaded an algorithm.
         if len(algsM)==0:
             try:
                 #args.alg_name.append('UBDn')
                 algsM[alg]=__import__('FDD')
-                print("No valid algorithm input could load. Using FDD")
+                print "No valid algorithm input could load. Using FDD"
             except:
                 sys.exit("Could not import any algorithm module")
                 
     elif not args.alg_name:
         #If no algorithms specified on input line, default to UBDn
-        print("No algorithm selected. Defaulting to upper bound, nodes")
+        print "No algorithm selected. Defaulting to upper bound, nodes"
         try:
             args.alg_name.append('UBDn')
             algsM[alg]=__import__('UBDn')
@@ -131,16 +131,16 @@ def main(args):
             filename=grph+'.gexf'
             for root,dirs,names in os.walk(args.inpath):
                 if filename in names:
-                    print(os.path.join(root,filename))
+                    print os.path.join(root,filename)
                     graphdic[grph]=nx.read_gexf(os.path.join(root,filename))
         except:
             #If we couldn't read the graph in. Give error, and go to next graph
-            print("Could not read in graph ", grph)
-            print("Check file existence, and if in .gexf format")
+            print "Could not read in graph ", grph
+            print "Check file existence, and if in .gexf format"
             continue
 
         #Running display of status
-        print(grph + ": start")
+        print grph + ": start"
 
         #Compute basic properties and stop condition(s) for graph.
         original_num_nodes = graphdic[grph].number_of_nodes()
@@ -152,19 +152,19 @@ def main(args):
         step=max(step,1)
         stop=max(stop,1)
 
-        print("Step: ", step)
-        print("Stop: ", stop)
+        print "Step: ", step
+        print "Stop: ", stop
 
         #Initialize dictionaries to hold results for each algorithm for monitors, nodes and edges
         algs_mon, algs_node, algs_edge={},{},{}
-        for alg in list(algsM.keys()):
+        for alg in algsM.keys():
             algs_mon[alg]=[]
             algs_node[alg]=[]
             algs_edge[alg]=[]
 
         #This loops over each trial run.
         for trial in range(args.trials):
-            print("Starting Run: {}/{} for {}".format(trial+1,args.trials,grph))
+            print "Starting Run: {}/{} for {}".format(trial+1,args.trials,grph)
 
             #Dictionaries to hold in trial values per algorithm.
             mon,node,edge={},{},{}
@@ -172,7 +172,7 @@ def main(args):
             curr_mon={}
             
             #Initialize dictionaries for algorithms.
-            for alg in list(algsM.keys()):
+            for alg in algsM.keys():
                 mon[alg]=[]
                 node[alg]=[]
                 edge[alg]=[]
@@ -195,26 +195,26 @@ def main(args):
 
                 #Place monitors on 0.5% of the graph.
                 for jj in range(step):
-                    for alg in list(algsM.keys()):
+                    for alg in algsM.keys():
                         curr_mon[alg]=infer_objs[alg].place_next_monitor(curr_mon[alg], args.params)
                         infer_objs[alg].add_neighbors(curr_mon[alg])
 
                 #Store the data for this 0.5% of the graph
-                for alg in list(algsM.keys()):
+                for alg in algsM.keys():
                     node[alg].append(infer_objs[alg].result_graph.number_of_nodes())
                     mon[alg].append(ii)
                     edge[alg].append(infer_objs[alg].result_graph.number_of_edges())
 
                 #Output a percent complete message for comfort.
                 tmp_compl=int(float(ii)*2/original_num_nodes*100)
-                print("{}: Run {}/{}: {} complete".format(grph, trial+1, args.trials, tmp_compl))
+                print "{}: Run {}/{}: {} complete".format(grph, trial+1, args.trials, tmp_compl)
                 #print curr_mon['UBDn']
         
             #End loop to place all monitors
                 
 
             #Save to json, and to multi-trial data structure.
-            for alg in list(algsM.keys()):
+            for alg in algsM.keys():
 
                 #Save all the counts
                 algs_mon[alg].append(mon[alg])
@@ -245,21 +245,21 @@ def main(args):
             if args.myalgprint:
                 #If turned on, calls a user/algorithm defined print function to
                 #output any special internal data-structures.
-                for alg in list(algsM.keys()):
+                for alg in algsM.keys():
                     infer_objs[alg].myprint((args.out_path, alg, grph, trial))
                 
                 
-            print("{}: {}/{} runs complete".format(grph, trial+1,args.trials))
+            print "{}: {}/{} runs complete".format(grph, trial+1,args.trials)
 
         #End loop over multiple trials.
             
         #Check for flag to output averages of all trials.
         if args.mkavg:
             #mon_tuples, node_tuples, edge_tuples={},{},{}
-            for alg in list(algsM.keys()):
+            for alg in algsM.keys():
 
                 #Output averaged monitors
-                mon_tuples=list(zip(*algs_mon[alg]))               
+                mon_tuples=zip(*algs_mon[alg])               
                 mon_avg=[np.mean(x) for x in mon_tuples]
                 mon_avg_per=[float(x)/original_num_nodes*100 for x in mon_avg]
                 outfile=open(args.out_path+alg+'_mon_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
@@ -267,7 +267,7 @@ def main(args):
                 outfile.close()
 
                 #Output averaged nodes
-                node_tuples=list(zip(*algs_node[alg]))               
+                node_tuples=zip(*algs_node[alg])               
                 node_avg=[np.mean(x) for x in node_tuples]
                 node_avg_per=[float(x)/original_num_nodes*100 for x in node_avg]
                 outfile=open(args.out_path+alg+'_node_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')
@@ -285,7 +285,7 @@ def main(args):
                 outfile.close()
 
                 #Output averaged edges
-                edge_tuples=list(zip(*algs_edge[alg]))
+                edge_tuples=zip(*algs_edge[alg])
                 edge_avg=[np.mean(x) for x in edge_tuples]
                 edge_avg_per=[float(x)/original_num_edges*100 for x in edge_avg]
                 outfile=open(args.out_path+alg+'_edge_per_avg_'+grph+'_'+str(args.trials)+'Runs.json','w')

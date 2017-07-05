@@ -25,12 +25,14 @@ import networkx as nx
 import numpy as np
 import sys
 
-#Algorithm: Fake-Degree Discovery (FDD)
+#Algorithm: Fake-Degree Discovery (FDD_r)
 #
 # Pick Start: Random node, not in monitor set
 #
 # Place Next:
-#   Max Fake Degree, followed by max real degree
+#   If no new information added in last two placements (i.e. r), jump by
+#       calling pick-start. Modified by passed parameter. (Default 2?)
+#   Otherwise, next monitor is Max Fake Degree, followed by max real degree
 #
 # Updates by removing edges of monitor nodes
 # Fake degree is the number of unseen neighbors
@@ -56,18 +58,15 @@ class Counter(dict):
 class Alg():
     def __init__(self, graph, sd):
         #We need a deepcopy if the self.graph gets modified.
-        self.graph = graph.copy() 
+        self.graph = graph.copy()
         np.random.seed(sd)
         self.result_graph = nx.Graph()
-        
-        #Sets with/without monitors.
         self.monitor_set = set()
-        self.monitor_free=nx.nodes(self.graph) #Save this list to speed computations.
-        
-        #Internal dictionaries
         self.next_highest = {}
         self.seen = Counter()
-                        
+        
+        self.no_new=0 #Counter for how many times no new nodes added.
+                
         #Initialize all fake degrees to degree
         self.fake_degree=dict()
         #for node in self.monitor_free:
@@ -93,7 +92,6 @@ class Alg():
     def pick_start(self):
         start_node = np.random.choice([x for x in self.graph.nodes() if x not in self.monitor_set])
         self.monitor_set.add(start_node)
-        self.monitor_free.remove(start_node)
         return start_node
 
     #public method. adds all edges (in NetworkX adding an edge adds the nodes if not already there)
@@ -109,6 +107,9 @@ class Alg():
         #Add self to list to update
         fake_update_set.add(node) 
 
+        #Default to not having added any new nodes.
+        new_nodes=False
+        
         #When we add the neighbors of a new node, set the seen count to 'inf'
         try:
             self.seen[node]='inf'
@@ -126,12 +127,20 @@ class Alg():
             fake_update_set |=set(self.graph.neighbors(neighbor))
             
             #Update the seen count for each neighbor. We can use this to make new fake-degree also.
+            if self.seen[neighbor]==0:
+                new_nodes=True
             if self.seen[neighbor] != 'inf':
                 self.seen[neighbor]+=1
                 self.seen['Total']+=1
-
+        
+        #update counter of new nodes found
+        if new_nodes:
+            self.no_new=0
+        else:
+            self.no_new+=1
+            
         #Update the fake-degrees
-        for node_to_update in fake_update_set:
+        for node_to_update in neighbors:
             #Fake degree is the number of neighbors unseen.
             tmp_len=len([x for x in self.graph.neighbors(node_to_update) if self.seen[x]>0])
             self.fake_degree[node_to_update]=self.graph.degree(node_to_update)-tmp_len
@@ -144,36 +153,24 @@ class Alg():
             self.next_highest.pop(key)
 
 
-    def place_next_monitor(self, node, prob):
-    
-        #Get the list of seen nodes, without monitors
-        seen_list=list(self.seen.keys())
-        seen_list.remove('Total')
-        seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
-        
-        #Get the node(s) with the highest fake-degree, and then the highest degree.
-        fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-        best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
-
-        #test_fake_max_degree_list=maxes(self.monitor_free, key=lambda mynode: self.fake_degree[mynode])
-
-        #Test FDD vs. UBDn
-        #if fake_max_degree_list==test_fake_max_degree_list:
-        #    print "Lists are same"
-        #else:
-        #    print "Lists are different"
-
-        #Pop the first 'best' node for the next monitor
-        if len(best_node_list) >= 1:
-            next_monitor = best_node_list.pop()
+    def place_next_monitor(self, node, param):
+        if self.no_new>=param:
+            next_monitor=self.pick_start()
         else:
-            print("There's an error somewhere or we have a disconnected graph")
+            #Get the list of seen nodes, without monitors
+            seen_list=list(self.seen.keys())
+            seen_list.remove('Total')
+            seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
+        
+            #Get the node(s) with the highest fake-degree, and then the highest degree.
+            fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
+            best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
+
+            #Pop the first 'best' node for the next monitor
+            if len(best_node_list) >= 1:
+                next_monitor = best_node_list.pop()
+            else:
+                print("There's an error somewhere or we have a disconnected graph")
 
         self.monitor_set.add(next_monitor)
-
-        try:
-            self.monitor_free.remove(next_monitor)
-        except:
-            print("Cannot place new monitor")
-        
         return next_monitor

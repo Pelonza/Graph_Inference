@@ -21,6 +21,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+
 import networkx as nx
 import numpy as np
 import sys
@@ -131,7 +132,7 @@ class Alg():
                 self.seen['Total']+=1
 
         #Update the fake-degrees
-        for node_to_update in fake_update_set:
+        for node_to_update in neighbors:
             #Fake degree is the number of neighbors unseen.
             tmp_len=len([x for x in self.graph.neighbors(node_to_update) if self.seen[x]>0])
             self.fake_degree[node_to_update]=self.graph.degree(node_to_update)-tmp_len
