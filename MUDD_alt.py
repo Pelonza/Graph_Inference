@@ -42,6 +42,9 @@ import json
 def maxes(a, key=None):
     if key is None:
         key = lambda x: x
+    if not a:
+        null_list=[]
+        return null_list
     m, max_list = key(a[0]), []
     for s in a:
         k = key(s)
@@ -165,78 +168,35 @@ class Alg():
 
 
     def place_next_monitor(self, node, prob):
-        br_node = 0.0
-        best_node_list = []
+        #br_node = 0.0
+        
         #print("Next Monitor: " + node)
 
         #for iy in G.neighbors(ix)
-
         
         #Get the list of seen nodes, without monitors
         seen_list=self.seen.keys()
         seen_list.remove('Total')
         seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
         
-        comp_node_list = []
-        node_list = self.graph.neighbors(node)
-    
-        #This iterates over ALL the neighbors of the current monitor.
-        #This includes all the neighbors that HAVE monitors already AND that don't
-        for n in self.graph.neighbors(node):
-            
-            if n in seen_list:
-                #This will execute if a neighbor doesn't have a monitor!
-                comp_node_list.append(self.br_info[n])
-                
-                #Below is redundant code with adding the br_info into the __init__
-                '''
-                if('R' in n[0]):
-                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3])))
-                    comp_node_list.append(br_node)
-                else:
-                    #br_node = 0.0
-                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3]) + int(n.split('_')[4]) + int(n.split('_')[5]) + int(n.split('_')[6]) + int(n.split('_')[7]) + int(n.split('_')[8]) + int(n.split('_')[9]) + int(n.split('_')[10])))
-                    comp_node_list.append(br_node)
-                '''
-                    
-            else:
-                #This will execute if a neighbor has a monitor
-                comp_node_list.append(-1)
+        best_node_list = []
 
-        #Get the node(s) with the highest fake-degree, and then the highest degree.
-        
-        if not comp_node_list:
-            #Execute if 'comp_node_list' is empty. That means that the node has no neighbors?
-            print "Don't think we get here?"
-            print len(seen_list)
+        #If any of the neighbors of the newest monitor have been seen, use the collected info first.
+        test_list=[n for n in self.graph.neighbors(node) if n in seen_list]
+        best_node_list=maxes(test_list, key= lambda mynode: self.br_info[mynode])
+
+        #If none of the neighbors of the monitor are seen, do normal UDD.
+        if not best_node_list:
             fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-            best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
-        else:
-            #change this. 
-            if(max(comp_node_list) == -1):
-                print "Got to alt calc"
-                fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-                best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))   
-            else:
-                red_node = node_list[comp_node_list.index(max(comp_node_list))]
-                best_node_list.append(red_node)
-        
-        test_fake_max_degree_list=max(seen_list, key=lambda mynode: self.br_info[mynode])
-        
-        #Test FDD vs. UBDn
-        print len(best_node_list)
-        print len(test_fake_max_degree_list)
-        if best_node_list==test_fake_max_degree_list:
-            print "Lists are same"
-        else:
-            print "Lists are different"
+            best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))    
 
         #Pop the first 'best' node for the next monitor
         
         if len(best_node_list) >= 1:
             next_monitor = best_node_list.pop()
         else:
-            print "There's an error somewhere or we have a disconnected graph"
+            print "There's an error somewhere or we have a disconnected graph. Picking Randomly"
+            next_monitor=self.pick_start()
 
         self.monitor_set.add(next_monitor)
         
@@ -253,7 +213,7 @@ class Alg():
         else:
             self.redseen += 1
             self.monitor_fancy.append( ("Red", next_monitor, len(self.monitor_set)-1, self.redseen, self.blueseen))
-            #print("Red Node: " + next_monitor)
+            #print("Blue Node: " + next_monitor)
         
 
         return next_monitor

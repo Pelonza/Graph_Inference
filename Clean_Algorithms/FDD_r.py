@@ -71,6 +71,7 @@ class Alg():
         self.monitor_set = set()
         self.next_highest = {}
         self.seen = Counter()
+        self.seen['Total']=0
         
         self.no_new=0 #Counter for how many times no new nodes added.
                 
@@ -167,20 +168,18 @@ class Alg():
         else:
             #Get the list of seen nodes, without monitors
             seen_list=self.seen.keys()
-            seen_list.remove('Total')
-            seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
+            try:
+                seen_list.remove('Total')
+                seen_list=[testnode for testnode in seen_list if (self.seen[testnode] > 0 and self.seen[testnode] !='inf') ]
         
-            #Get the node(s) with the highest fake-degree, and then the highest degree.
-            if seen_list: #Check that we saw other nodes
-                fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
-                if fake_max_degree_list:
-                    best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
-                    #Pop the first 'best' node for the next monitor
-                    if best_node_list:
-                        next_monitor = best_node_list.pop()
+                #Get the node(s) with the highest fake-degree, and then the highest degree.
+                fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                          #added
+                best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))            #added
+                #Pop the first 'best' node for the next monitor
+                next_monitor = best_node_list.pop()
                     
-            if not next_monitor:
-                print "No viable next node. Probably disconnected graph. Picking random-start"
+            except:
+                print "No viable next or seen node. Probably disconnected graph. Picking random-start"
                 next_monitor=self.pick_start()
                 
         self.monitor_set.add(next_monitor)

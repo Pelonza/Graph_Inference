@@ -19,14 +19,11 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Updated by Scott Warnke, 2016: For Multilayered Networks
 '''
 
 import networkx as nx
 import numpy as np
 import sys
-import json
 
 #Algorithm: Fake-Degree Discovery (FDD)
 #
@@ -70,24 +67,13 @@ class Alg():
         #Internal dictionaries
         self.next_highest = {}
         self.seen = Counter()
-        
-        #2-Colored Components
-        self.blueseen = 0
-        self.redseen = 0
-        self.monitor_fancy = list()
-        
                         
         #Initialize all fake degrees to degree
         self.fake_degree=dict()
-        self.br_info=dict()
         #for node in self.monitor_free:
         for node in nx.nodes(self.graph):
             self.fake_degree[node]=self.graph.degree(node)
-            if('R' in node[0]):
-                self.br_info[node] = (float(int(node.split('_')[1]) + int(node.split('_')[2]) + int(node.split('_')[3])))
-            else:
-                self.br_info[node] = (float(int(node.split('_')[1]) + int(node.split('_')[2]) + int(node.split('_')[3]) + int(node.split('_')[4]) + int(node.split('_')[5]) + int(node.split('_')[6]) + int(node.split('_')[7]) + int(node.split('_')[8]) + int(node.split('_')[9]) + int(node.split('_')[10])))
-                
+
     #public method. Returns true if we have placed all the monitors
     #we have available to us, else returns false
     def stop(self, allotment):
@@ -180,56 +166,47 @@ class Alg():
         comp_node_list = []
         node_list = self.graph.neighbors(node)
     
-        #This iterates over ALL the neighbors of the current monitor.
-        #This includes all the neighbors that HAVE monitors already AND that don't
         for n in self.graph.neighbors(node):
-            
             if n in seen_list:
-                #This will execute if a neighbor doesn't have a monitor!
-                comp_node_list.append(self.br_info[n])
-                
-                #Below is redundant code with adding the br_info into the __init__
-                '''
                 if('R' in n[0]):
-                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3])))
+                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3])) * float(n.split('_')[11]))
                     comp_node_list.append(br_node)
                 else:
                     #br_node = 0.0
-                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3]) + int(n.split('_')[4]) + int(n.split('_')[5]) + int(n.split('_')[6]) + int(n.split('_')[7]) + int(n.split('_')[8]) + int(n.split('_')[9]) + int(n.split('_')[10])))
+                    br_node = (float(int(n.split('_')[1]) + int(n.split('_')[2]) + int(n.split('_')[3]) + int(n.split('_')[4]) + int(n.split('_')[5]) + int(n.split('_')[6]) + int(n.split('_')[7]) + int(n.split('_')[8]) + int(n.split('_')[9]) + int(n.split('_')[10])) * float(n.split('_')[11]))
                     comp_node_list.append(br_node)
-                '''
-                    
             else:
-                #This will execute if a neighbor has a monitor
-                comp_node_list.append(-1)
+                #This is only necessary if you never want to use the 
+                br_node = -1
+                comp_node_list.append(br_node)
 
         #Get the node(s) with the highest fake-degree, and then the highest degree.
-        
         if not comp_node_list:
-            #Execute if 'comp_node_list' is empty. That means that the node has no neighbors?
-            print "Don't think we get here?"
-            print len(seen_list)
+            # This should probably have an English explanation of when it gets into this "IF" block
+            
+            #This code should never execute? or Always execute? .. KS
+            print "I think this code shouldn't execute ever (or does it always?). KS."
             fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
             best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))                                                        #added
         else:
             #change this. 
             if(max(comp_node_list) == -1):
-                print "Got to alt calc"
+                #I will check what happens above, but this "inner" if/else should probably be the only
+                # If else, based on the code logic you are forcing...
                 fake_max_degree_list=maxes(seen_list, key=lambda mynode: self.fake_degree[mynode])                                       #added
                 best_node_list=maxes(fake_max_degree_list, key=lambda mynode: self.graph.degree(mynode))   
             else:
                 red_node = node_list[comp_node_list.index(max(comp_node_list))]
                 best_node_list.append(red_node)
-        
-        test_fake_max_degree_list=max(seen_list, key=lambda mynode: self.br_info[mynode])
+                
+                
+        #test_fake_max_degree_list=maxes(self.monitor_free, key=lambda mynode: self.fake_degree[mynode])
         
         #Test FDD vs. UBDn
-        print len(best_node_list)
-        print len(test_fake_max_degree_list)
-        if best_node_list==test_fake_max_degree_list:
-            print "Lists are same"
-        else:
-            print "Lists are different"
+        #if fake_max_degree_list==test_fake_max_degree_list:
+        #    print "Lists are same"
+        #else:
+        #    print "Lists are different"
 
         #Pop the first 'best' node for the next monitor
         
@@ -247,50 +224,9 @@ class Alg():
             print("Cannot place new monitor: " + next_monitor)
             
         if('B' in next_monitor[0]):
-            self.blueseen += 1
-            self.monitor_fancy.append( ("Blue", next_monitor, len(self.monitor_set)-1, self.redseen, self.blueseen))
-            #print("Red Node: " + next_monitor)
+            print("Blue Node: " + next_monitor)
         else:
-            self.redseen += 1
-            self.monitor_fancy.append( ("Red", next_monitor, len(self.monitor_set)-1, self.redseen, self.blueseen))
-            #print("Red Node: " + next_monitor)
+            print("Red Node: " + next_monitor)
         
 
         return next_monitor
-    
-    
-    def myprint(self,myargs):
-        #This function will print out any internal data objects needed.
-        #For the Multi-colored/layered, prints out blue/red data.
-        
-        #Desired output looks like:
-        # Red/Blue, ID, Mon#, Red#, Blue#, Red%, Blue%
-        
-        #Old Code
-        #myoutput=list()
-        #myblue_out=list()
-        #myred_out=list()
-        myoutput= list( (x[0], x[1], x[2], x[3], x[4], float(x[3])/float(self.redseen), float(x[4])/float(self.blueseen)) for x in self.monitor_fancy)
-        myred_out= list( (float(x[3])/float(self.redseen)) for x in self.monitor_fancy)
-        myblue_out=list( float((x[4])/float(self.blueseen)) for x in self.monitor_fancy)
-        
-        #Below was older code in a for-loop... which might actually be faster...? 
-        '''
-            tmp=list(entry)
-            tmp.append(entry[3]/self.redseen)
-            myred_out.append(entry[3]/self.redseen)
-            tmp.append(entry[4]/self.blueseen)
-            myblue_out.append(entry[4]/self.blueseen)
-            myoutput.append(tmp)
-        '''
-        
-        outfile=open(myargs[0]+myargs[1]+'_fancy_out_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
-        json.dump(myoutput,outfile)
-        outfile.close()
-        outfile=open(myargs[0]+myargs[1]+'_redperonly_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
-        json.dump(myred_out,outfile)
-        outfile.close()
-        outfile=open(myargs[0]+myargs[1]+'_blueperonly_'+myargs[2]+'_'+str(myargs[3])+'.json','w')
-        json.dump(myblue_out,outfile)
-        outfile.close()
-        
