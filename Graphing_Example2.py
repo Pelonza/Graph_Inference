@@ -10,14 +10,25 @@ Creating all the axes etc.
 Showing the plot.
 
 Code written/adjusted by Brittany Reynolds, 2015
+Revised 7/6/17 by Karl Schmitt
 '''
 
-import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
-import sys
-import time
 import json
+import bokeh as bk
+
+#Enter the list of graphs to be plotted here.
+graph_names=list(['sbmgraph', 'wsgraph'])
+
+#Enter algorithms to be plotted over.
+algorithms = list(['UBDn', 'UBDe', 'HC_p','HC_pL','HC_pF','HC_pLF', 'RW', 'RP', 'RWHD'])
+
+#Enter path to json files
+filepath='./Out3_revisions/'
+
+for graph in graph_names:
+    #Make the full plot for each thing?
+    fig_edge = figure()
+    
 
 graph_name="ER_random-1" #name to call it by
 Graph_Name= "Facebook"  #name you want on top of plot
