@@ -3,7 +3,7 @@ import json
 graphdic={}
 numRuns=50
 graphdic['sbm']='sbmgraph'
-graphdic['ws'] ='wsgraph'
+graphdic['ws'] ='wsgraph2'
 
 
 #==============================================================================
